@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getTelegramImageUrl } from '../lib/telegram';
-import { Skeleton } from './ui/skeleton';
+import { getTelegramImageUrl } from '@/lib/telegram';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProductImageProps {
   fileId?: string;

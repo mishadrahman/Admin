@@ -9,7 +9,7 @@ import {
   Search,
   Loader2
 } from 'lucide-react';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { 
   Dialog, 
@@ -19,14 +19,14 @@ import {
   DialogTrigger,
   DialogDescription,
   DialogFooter
-} from './ui/dialog';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ProductImage } from './ProductImage';
-import { Product, Sale } from '../types';
+import { Product, Sale } from '@/types';
 import { collection, addDoc, updateDoc, doc, serverTimestamp, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { uploadToTelegram } from '../lib/telegram';
+import { db, handleFirestoreError, OperationType } from '@/lib/firebase';
+import { uploadToTelegram } from '@/lib/telegram';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -36,7 +36,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
+} from '@/components/ui/select';
 
 interface QuickActionsProps {
   products: Product[];

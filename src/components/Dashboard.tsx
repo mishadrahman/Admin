@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { Product, Sale, DashboardStats } from '../types';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { db, handleFirestoreError, OperationType } from '@/lib/firebase';
+import { Product, Sale, DashboardStats } from '@/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   TrendingUp, 
   BarChart3, 
@@ -15,7 +15,7 @@ import {
   Download,
   Calendar
 } from 'lucide-react';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import { 
   BarChart, 
   Bar, 

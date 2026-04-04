@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { collection, onSnapshot, deleteDoc, doc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { Product, Sale } from '../types';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Badge } from './ui/badge';
+import { db, handleFirestoreError, OperationType } from '@/lib/firebase';
+import { Product, Sale } from '@/types';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { 
   Plus, 
   Search, 
@@ -25,10 +25,10 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogDescription
-} from './ui/dialog';
-import { Label } from './ui/label';
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { ProductImage } from './ProductImage';
-import { uploadToTelegram } from '../lib/telegram';
+import { uploadToTelegram } from '@/lib/telegram';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';

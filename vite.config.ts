@@ -14,7 +14,11 @@ export default defineConfig(({mode}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        '@/components': path.resolve(__dirname, './src/components'),
+        '@/lib': path.resolve(__dirname, './src/lib'),
+        '@/ui': path.resolve(__dirname, './src/components/ui'),
       },
+      extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

@@ -1,0 +1,47 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Represents a product in the shop's inventory.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the product." },
+        "name": { "type": "string", "description": "Name of the product." },
+        "purchasePrice": { "type": "number", "description": "Price at which the product was purchased." },
+        "quantity": { "type": "integer", "description": "Available stock quantity." },
+        "telegramFileId": { "type": "string", "description": "File ID of the product image stored on Telegram." },
+        "createdAt": { "type": "integer", "description": "Timestamp when the product was created." }
+      },
+      "required": ["name", "purchasePrice", "quantity", "createdAt"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Represents a sales transaction.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the sale." },
+        "productId": { "type": "string", "description": "ID of the product sold." },
+        "productName": { "type": "string", "description": "Name of the product sold." },
+        "purchasePrice": { "type": "number", "description": "Purchase price of the product at the time of sale." },
+        "sellingPrice": { "type": "number", "description": "Price at which the product was sold." },
+        "quantity": { "type": "integer", "description": "Quantity sold." },
+        "profit": { "type": "number", "description": "Profit made from the sale." },
+        "date": { "type": "string", "format": "date", "description": "Date of the sale (YYYY-MM-DD)." },
+        "month": { "type": "string", "description": "Month of the sale (YYYY-MM)." },
+        "year": { "type": "string", "description": "Year of the sale (YYYY)." },
+        "createdAt": { "type": "integer", "description": "Timestamp when the sale record was created." }
+      },
+      "required": ["productId", "productName", "purchasePrice", "sellingPrice", "quantity", "profit", "date", "month", "year", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Inventory collection."
+    },
+    "/sales/{saleId}": {
+      "schema": { "$ref": "#/entities/Sale" },
+      "description": "Sales transactions collection."
+    }
+  }
+}

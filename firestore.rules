@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: products
+    // Fields:
+    //   - name: string (required, 1-100 chars)
+    //   - purchasePrice: number (required, >= 0)
+    //   - quantity: number (required, >= 0)
+    //   - telegramFileId: string (optional)
+    //   - createdAt: number (required)
+    //   - updatedAt: timestamp (optional)
+    //
+    // Collection: sales
+    // Fields:
+    //   - productId: string (required)
+    //   - productName: string (required)
+    //   - purchasePrice: number (required)
+    //   - sellingPrice: number (required)
+    //   - quantity: number (required)
+    //   - profit: number (required)
+    //   - date: string (required, YYYY-MM-DD)
+    //   - month: string (required, YYYY-MM)
+    //   - year: string (required, YYYY)
+    //   - createdAt: number (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "mdmishadrahman500@gmail.com");
+    }
+
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.purchasePrice is number && data.purchasePrice >= 0 &&
+             data.quantity is number && data.quantity >= 0 &&
+             (!('telegramFileId' in data) || data.telegramFileId is string) &&
+             data.createdAt is number;
+    }
+
+    function isValidSale(data) {
+      return data.productId is string &&
+             data.productName is string &&
+             data.purchasePrice is number &&
+             data.sellingPrice is number &&
+             data.quantity is number && data.quantity > 0 &&
+             data.profit is number &&
+             data.date is string && data.date.matches("^\\d{4}-\\d{2}-\\d{2}$") &&
+             data.month is string && data.month.matches("^\\d{4}-\\d{2}$") &&
+             data.year is string && data.year.matches("^\\d{4}$") &&
+             data.createdAt is number;
+    }
+
+    // Rules
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidProduct(request.resource.data);
+      allow update: if isAdmin() && isValidProduct(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /sales/{saleId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidSale(request.resource.data);
+      allow update: if false; // Sales should be immutable
+      allow delete: if isAdmin();
+    }
+  }
+}

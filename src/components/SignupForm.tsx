@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { Button } from '@/components/ui/button.tsx';
-import { Input } from '@/components/ui/input.tsx';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card.tsx';
-import { Label } from '@/components/ui/label.tsx';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
+import { Label } from './ui/label';
 import { toast } from 'sonner';
 import { Loader2, Lock, Mail, User, Smartphone } from 'lucide-react';
 import { motion } from 'framer-motion';

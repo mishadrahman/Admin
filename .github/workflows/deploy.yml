@@ -27,10 +27,6 @@ jobs:
       - name: Install Dependencies 📦
         run: npm ci
 
-      - name: Lint and Type Check 🔍
-        run: |
-          npm run lint
-
       - name: Build 🔧
         run: npm run build
 

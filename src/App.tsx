@@ -5,8 +5,8 @@ import { ProductList } from './components/ProductList';
 import { QuickActions } from './components/QuickActions';
 import { LoginForm } from './components/LoginForm';
 import { SignupForm } from './components/SignupForm';
-import { Toaster } from './components/ui/sonner';
-import { Button } from './components/ui/button';
+import { Toaster } from '@/components/ui/sonner';
+import { Button } from '@/components/ui/button';
 import { 
   LogOut, 
   Moon, 
@@ -28,8 +28,8 @@ import { signOut } from 'firebase/auth';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { Product } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 class ErrorBoundary extends React.Component<any, any> {
   public state: any = { hasError: false, error: null };

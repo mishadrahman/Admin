@@ -45,30 +45,46 @@ export function uploadToTelegram(file: File, onProgress?: (percent: number) => v
 }
 
 export async function getTelegramImageUrl(fileId: string): Promise<string> {
-  try {
-    // Add cache: 'no-store' to prevent the browser from caching the expired file_path
-    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
+  return new Promise((resolve, reject) => {
+    console.log(`[Telegram] Fetching file path for fileId: ${fileId} using XMLHttpRequest`);
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', `https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`);
+    
+    // Add headers to prevent caching
+    xhr.setRequestHeader('Cache-Control', 'no-cache');
+    xhr.setRequestHeader('Pragma', 'no-cache');
+
+    xhr.onload = () => {
+      if (xhr.status === 404) {
+        console.error('[Telegram] 404 error: Bot token might be invalid.');
+        reject(new Error('Telegram API returned 404. Please check if your Bot Token is correct.'));
+        return;
       }
-    });
-    
-    if (response.status === 404) {
-      throw new Error('Telegram API returned 404. Please check if your Bot Token is correct.');
-    }
 
-    const data = await response.json();
-    
-    if (!data.ok) {
-      throw new Error(data.description || 'Failed to get file path from Telegram');
-    }
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (!data.ok) {
+          console.error('[Telegram] Error getting file path:', data.description);
+          reject(new Error(data.description || 'Failed to get file path from Telegram'));
+          return;
+        }
 
-    const filePath = data.result.file_path;
-    return `https://api.telegram.org/file/bot${BOT_TOKEN}/${filePath}`;
-  } catch (error) {
-    if (error instanceof Error) throw error;
-    throw new Error('An unknown error occurred while fetching Telegram image');
-  }
+        const filePath = data.result.file_path;
+        // Add a cache-busting timestamp to the final image URL
+        const finalUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${filePath}?t=${Date.now()}`;
+        console.log(`[Telegram] Successfully generated URL for ${fileId}`);
+        resolve(finalUrl);
+      } catch (e) {
+        console.error('[Telegram] Failed to parse Telegram response:', e);
+        reject(new Error('Failed to parse Telegram response'));
+      }
+    };
+
+    xhr.onerror = () => {
+      console.error('[Telegram] Network error during getFile');
+      reject(new Error('Network error during Telegram getFile'));
+    };
+    
+    xhr.send();
+  });
 }

@@ -26,23 +26,41 @@ export const ProductImage: React.FC<ProductImageProps> = ({ fileId, fallbackUrl,
       return;
     }
 
+    let isMounted = true;
     const fetchUrl = async () => {
+      setLoading(true);
+      setError(false);
       try {
+        // Small delay to ensure network is ready and avoid rapid re-fetches
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        if (!isMounted) return;
+        
+        console.log(`[ProductImage] Fetching image for fileId: ${fileId}`);
         const imageUrl = await getTelegramImageUrl(fileId);
+        
+        if (!isMounted) return;
+        
+        console.log(`[ProductImage] Received image URL for ${fileId}:`, imageUrl);
         setUrl(imageUrl);
       } catch (err) {
-        console.error('Failed to fetch Telegram image URL:', err);
+        if (!isMounted) return;
+        console.error(`[ProductImage] Failed to fetch Telegram image URL for ${fileId}:`, err);
         if (fallbackUrl) {
+          console.log(`[ProductImage] Using fallback URL for ${fileId}:`, fallbackUrl);
           setUrl(fallbackUrl);
         } else {
           setError(true);
         }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchUrl();
+    return () => { isMounted = false; };
   }, [fileId, fallbackUrl]);
 
   if (loading) {
@@ -51,8 +69,16 @@ export const ProductImage: React.FC<ProductImageProps> = ({ fileId, fallbackUrl,
 
   if (error || !url) {
     return (
-      <div className={`flex items-center justify-center bg-muted rounded-md ${className}`}>
-        <span className="text-xs text-muted-foreground">No Image</span>
+      <div className={`flex flex-col items-center justify-center bg-muted rounded-md ${className} gap-1 p-2`}>
+        <span className="text-[10px] text-muted-foreground">No Image</span>
+        {fileId && (
+          <button 
+            onClick={() => window.location.reload()} 
+            className="text-[8px] text-primary hover:underline font-bold"
+          >
+            Retry
+          </button>
+        )}
       </div>
     );
   }

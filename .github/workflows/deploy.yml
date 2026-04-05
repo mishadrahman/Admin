@@ -29,8 +29,6 @@ jobs:
 
       - name: Build 🔧
         run: npm run build
-        env:
-          VITE_TELEGRAM_BOT_TOKEN: ${{ secrets.VITE_TELEGRAM_BOT_TOKEN }}
 
       - name: Deploy to GitHub Pages 🚀
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

@@ -140,7 +140,10 @@ const AppContent: React.FC = () => {
             </div>
             <div>
               <h1 className="text-lg font-bold tracking-tight">Mehedy Telecom</h1>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Administrator</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Administrator</p>
+                <span className="text-[8px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">v2.1</span>
+              </div>
             </div>
           </div>
 

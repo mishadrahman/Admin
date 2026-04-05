@@ -1,6 +1,8 @@
 const BOT_TOKEN = '7093786320:AAFJ3VHetpwL8SVzEsSn_ICswN42eetfGUc';
 const CHAT_ID = '-1003892775304';
 
+console.log('[Telegram] Library initialized with hardcoded token. Version: 2.1');
+
 export function uploadToTelegram(file: File, onProgress?: (percent: number) => void): Promise<string> {
   const formData = new FormData();
   formData.append('chat_id', CHAT_ID);

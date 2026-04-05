@@ -340,7 +340,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ products }) => {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded bg-slate-100 flex items-center justify-center overflow-hidden">
-                      <ProductImage fileId={product.telegramFileId} alt={product.name} className="w-full h-full object-cover" />
+                      <ProductImage fileId={product.telegramFileId} fallbackUrl={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <p className="font-medium text-sm">{product.name}</p>

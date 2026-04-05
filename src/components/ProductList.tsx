@@ -288,6 +288,7 @@ export const ProductList: React.FC = () => {
                           <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0">
                             <ProductImage 
                               fileId={product.telegramFileId} 
+                              fallbackUrl={product.imageUrl}
                               alt={product.name} 
                               className="w-full h-full object-cover"
                             />

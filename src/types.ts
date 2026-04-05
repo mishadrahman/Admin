@@ -4,6 +4,7 @@ export interface Product {
   purchasePrice: number;
   quantity: number;
   telegramFileId?: string;
+  imageUrl?: string;
   createdAt: number;
 }
 

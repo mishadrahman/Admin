@@ -54,7 +54,14 @@ export function uploadToTelegram(file: File, onProgress?: (percent: number) => v
 export async function getTelegramImageUrl(fileId: string): Promise<string> {
   checkToken();
   try {
-    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`);
+    // Add cache: 'no-store' to prevent the browser from caching the expired file_path
+    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
     
     if (response.status === 404) {
       throw new Error('Telegram API returned 404. Please check if your Bot Token is correct.');

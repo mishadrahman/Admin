@@ -1,14 +1,7 @@
-const BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN || '';
+const BOT_TOKEN = '7093786320:AAFJ3VHetpwL8SVzEsSn_ICswN42eetfGUc';
 const CHAT_ID = '-1003892775304';
 
-function checkToken() {
-  if (!BOT_TOKEN || BOT_TOKEN === 'MY_TELEGRAM_BOT_TOKEN') {
-    throw new Error('Telegram Bot Token is not configured. Please add VITE_TELEGRAM_BOT_TOKEN to your secrets.');
-  }
-}
-
 export function uploadToTelegram(file: File, onProgress?: (percent: number) => void): Promise<string> {
-  checkToken();
   const formData = new FormData();
   formData.append('chat_id', CHAT_ID);
   formData.append('photo', file);
@@ -52,7 +45,6 @@ export function uploadToTelegram(file: File, onProgress?: (percent: number) => v
 }
 
 export async function getTelegramImageUrl(fileId: string): Promise<string> {
-  checkToken();
   try {
     // Add cache: 'no-store' to prevent the browser from caching the expired file_path
     const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`, {

@@ -174,8 +174,8 @@ export const Dashboard: React.FC = () => {
           <CardHeader className="p-2">
             <CardTitle className="text-sm font-bold text-slate-400 uppercase tracking-wider">Profit Trend</CardTitle>
           </CardHeader>
-          <CardContent className="h-[180px] w-full p-0">
-            <ResponsiveContainer width="100%" height="100%">
+          <CardContent className="h-[180px] w-full p-0 min-h-0 min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
               <BarChart data={chartData}>
                 <Tooltip 
                   cursor={{ fill: 'transparent' }}

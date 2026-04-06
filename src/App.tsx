@@ -116,7 +116,27 @@ const AppContent: React.FC = () => {
 
   const handleLogout = async () => {
     try {
+      // Clear all local storage
+      localStorage.clear();
+      // Clear all session storage
+      sessionStorage.clear();
+      
+      // Clear browser caches if supported
+      if ('caches' in window) {
+        try {
+          const cacheNames = await caches.keys();
+          await Promise.all(
+            cacheNames.map(cacheName => caches.delete(cacheName))
+          );
+        } catch (e) {
+          console.error('Failed to clear caches:', e);
+        }
+      }
+
       await signOut(auth);
+      
+      // Force reload to clear any memory state
+      window.location.reload();
     } catch (error) {
       console.error('Failed to logout:', error);
     }

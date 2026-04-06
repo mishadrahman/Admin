@@ -54,6 +54,7 @@ export const ProductList: React.FC = () => {
     name: '',
     purchasePrice: '',
     quantity: '',
+    stockAdjustment: '',
     image: null as File | null,
   });
   const [sellForm, setSellForm] = useState({
@@ -100,10 +101,21 @@ export const ProductList: React.FC = () => {
         });
       }
 
+      let finalQuantity = Number(productForm.quantity);
+      if (editingProduct) {
+        const adjustment = productForm.stockAdjustment ? Number(productForm.stockAdjustment) : 0;
+        finalQuantity = editingProduct.quantity + adjustment;
+        if (finalQuantity < 0) {
+          toast.error('Final stock cannot be negative');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const productData = {
         name: productForm.name,
         purchasePrice: Number(productForm.purchasePrice),
-        quantity: Number(productForm.quantity),
+        quantity: finalQuantity,
         telegramFileId: fileId,
         updatedAt: serverTimestamp(),
       };
@@ -195,7 +207,7 @@ export const ProductList: React.FC = () => {
   };
 
   const resetProductForm = () => {
-    setProductForm({ name: '', purchasePrice: '', quantity: '', image: null });
+    setProductForm({ name: '', purchasePrice: '', quantity: '', stockAdjustment: '', image: null });
     setEditingProduct(null);
   };
 
@@ -205,6 +217,7 @@ export const ProductList: React.FC = () => {
       name: product.name,
       purchasePrice: product.purchasePrice.toString(),
       quantity: product.quantity.toString(),
+      stockAdjustment: '',
       image: null,
     });
     setIsProductModalOpen(true);
@@ -390,15 +403,31 @@ export const ProductList: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-quantity" className="text-sm font-semibold text-slate-700">Quantity</Label>
-                <Input 
-                  id="edit-quantity" 
-                  type="number" 
-                  required 
-                  className="h-11 rounded-xl border-slate-200 focus:ring-2 focus:ring-indigo-500/20"
-                  value={productForm.quantity}
-                  onChange={(e) => setProductForm({...productForm, quantity: e.target.value})}
-                />
+                {editingProduct ? (
+                  <>
+                    <Label htmlFor="edit-adjustment" className="text-sm font-semibold text-slate-700">Add/Remove Stock (Current: {editingProduct.quantity})</Label>
+                    <Input 
+                      id="edit-adjustment" 
+                      type="number" 
+                      placeholder="e.g. 5 or -2"
+                      className="h-11 rounded-xl border-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+                      value={productForm.stockAdjustment}
+                      onChange={(e) => setProductForm({...productForm, stockAdjustment: e.target.value})}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Label htmlFor="edit-quantity" className="text-sm font-semibold text-slate-700">Initial Quantity</Label>
+                    <Input 
+                      id="edit-quantity" 
+                      type="number" 
+                      required 
+                      className="h-11 rounded-xl border-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+                      value={productForm.quantity}
+                      onChange={(e) => setProductForm({...productForm, quantity: e.target.value})}
+                    />
+                  </>
+                )}
               </div>
             </div>
             <div className="space-y-2">

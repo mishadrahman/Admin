@@ -5,6 +5,7 @@ import { ProductList } from '@/components/ProductList';
 import { QuickActions } from '@/components/QuickActions';
 import { LoginForm } from '@/components/LoginForm';
 import { SignupForm } from '@/components/SignupForm';
+import { ProfileSettingsDialog } from '@/components/ProfileSettingsDialog';
 import { Toaster } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 import { 
@@ -25,8 +26,9 @@ import {
 } from 'lucide-react';
 import { auth, db, handleFirestoreError, OperationType } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { Product } from '@/types';
+import { getTelegramImageUrl } from '@/lib/telegram';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -86,6 +88,8 @@ const AppContent: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [products, setProducts] = useState<Product[]>([]);
+  const [profileUrl, setProfileUrl] = useState<string | null>(null);
+  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -97,13 +101,38 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
-    const unsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
+    const unsubscribeProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
       setProducts(data);
     }, (error) => {
       handleFirestoreError(error, OperationType.GET, 'products');
     });
-    return unsubscribe;
+
+    const unsubscribeProfile = onSnapshot(doc(db, 'settings', 'shopProfile'), async (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.profileImageFileId) {
+          getTelegramImageUrl(data.profileImageFileId).then(setProfileUrl).catch(console.error);
+        } else {
+          setProfileUrl(null);
+        }
+        if (data.backgroundImageFileId) {
+          getTelegramImageUrl(data.backgroundImageFileId).then(setBackgroundUrl).catch(console.error);
+        } else {
+          setBackgroundUrl(null);
+        }
+      } else {
+        setProfileUrl(null);
+        setBackgroundUrl(null);
+      }
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, 'settings/shopProfile');
+    });
+
+    return () => {
+      unsubscribeProducts();
+      unsubscribeProfile();
+    };
   }, [user]);
 
   if (!user) {
@@ -145,15 +174,19 @@ const AppContent: React.FC = () => {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-slate-950 text-slate-50' : 'bg-slate-50 text-slate-900'}`}>
       {/* New Header based on screenshot */}
-      <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-md ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/80 border-slate-200'}`}>
+      <header 
+        className={`sticky top-0 z-50 w-full border-b backdrop-blur-sm bg-cover bg-center ${isDarkMode ? 'bg-slate-950/70 border-slate-800' : 'bg-white/70 border-slate-200'}`}
+        style={backgroundUrl ? { backgroundImage: `linear-gradient(to right, ${isDarkMode ? 'rgba(2, 6, 23, 0.85)' : 'rgba(255, 255, 255, 0.9)'} 0%, ${isDarkMode ? 'rgba(2, 6, 23, 0.1)' : 'rgba(255, 255, 255, 0.1)'} 100%), url(${backgroundUrl})` } : {}}
+      >
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden border-2 border-primary/20 shadow-sm">
                 <img 
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} 
+                  src={profileUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} 
                   alt="Profile" 
                   className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
                 />
               </div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
@@ -168,9 +201,11 @@ const AppContent: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="rounded-full bg-slate-100 dark:bg-slate-800">
-              <ImageIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-            </Button>
+            <ProfileSettingsDialog>
+              <Button variant="ghost" size="icon" className="rounded-full bg-slate-100 dark:bg-slate-800">
+                <ImageIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              </Button>
+            </ProfileSettingsDialog>
             <Button
               variant="ghost"
               size="icon"

@@ -74,5 +74,10 @@ service cloud.firestore {
       allow update: if false; // Sales should be immutable
       allow delete: if isAdmin();
     }
+
+    match /settings/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
   }
 }

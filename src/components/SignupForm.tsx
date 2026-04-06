@@ -36,7 +36,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center bg-slate-900 relative overflow-hidden">
       {/* Dynamic Background Image */}
       {backgroundUrl && (
         <motion.div 
@@ -56,8 +56,8 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
       {/* Fallback Background decoration */}
       {!backgroundUrl && (
         <>
-          <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-400/20 blur-[120px]" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 blur-[120px]" />
+          <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[120px]" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/20 blur-[120px]" />
         </>
       )}
       
@@ -72,7 +72,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className={`p-4 rounded-2xl mb-6 ${backgroundUrl ? 'bg-transparent border border-white/30' : 'bg-gradient-to-br from-indigo-600 to-purple-600 shadow-xl shadow-indigo-900/10'}`}
+            className="p-4 rounded-2xl mb-6 bg-transparent border border-white/30"
           >
             <Smartphone className="h-10 w-10 text-white" strokeWidth={1.5} />
           </motion.div>
@@ -80,7 +80,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className={`text-4xl font-extrabold tracking-tight mb-2 ${backgroundUrl ? 'text-white drop-shadow-md' : 'text-slate-900'}`}
+            className="text-4xl font-extrabold tracking-tight mb-2 text-white drop-shadow-md"
           >
             Mehedy Telecom
           </motion.h1>
@@ -88,7 +88,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className={`font-medium ${backgroundUrl ? 'text-slate-200 drop-shadow' : 'text-slate-500'}`}
+            className="font-medium text-slate-200 drop-shadow"
           >
             Create Admin Account
           </motion.p>
@@ -99,24 +99,24 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className={`${backgroundUrl ? 'bg-transparent border-white/30 shadow-none' : 'backdrop-blur-xl shadow-2xl border-slate-100 bg-white/80 shadow-slate-200/50'}`}>
+          <Card className="bg-transparent border-white/30 shadow-none">
             <CardHeader className="space-y-1 pb-6">
-              <CardTitle className={`text-2xl font-bold text-center ${backgroundUrl ? 'text-white' : 'text-slate-900'}`}>Sign Up</CardTitle>
-              <CardDescription className={`text-center ${backgroundUrl ? 'text-slate-300' : 'text-slate-500'}`}>
+              <CardTitle className="text-2xl font-bold text-center text-white">Sign Up</CardTitle>
+              <CardDescription className="text-center text-slate-300">
                 Enter your details to create a new account
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSignup}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className={backgroundUrl ? 'text-slate-200' : 'text-slate-700'}>Full Name</Label>
+                  <Label htmlFor="name" className="text-slate-200">Full Name</Label>
                   <div className="relative group">
-                    <User className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors ${backgroundUrl ? 'text-slate-300 group-focus-within:text-white' : 'text-slate-400 group-focus-within:text-indigo-600'}`} />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors text-slate-300 group-focus-within:text-white" />
                     <Input 
                       id="name" 
                       type="text" 
                       placeholder="Mehedy Hasan" 
-                      className={`pl-10 h-12 ${backgroundUrl ? 'bg-transparent border-white/30 text-white placeholder:text-slate-300 focus-visible:ring-white/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-600'}`}
+                      className="pl-10 h-12 bg-transparent border-white/30 text-white placeholder:text-slate-300 focus-visible:ring-white/50"
                       required 
                       value={name}
                       onChange={(e) => setName(e.target.value)}
@@ -124,14 +124,14 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className={backgroundUrl ? 'text-slate-200' : 'text-slate-700'}>Email</Label>
+                  <Label htmlFor="email" className="text-slate-200">Email</Label>
                   <div className="relative group">
-                    <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors ${backgroundUrl ? 'text-slate-300 group-focus-within:text-white' : 'text-slate-400 group-focus-within:text-indigo-600'}`} />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors text-slate-300 group-focus-within:text-white" />
                     <Input 
                       id="email" 
                       type="email" 
                       placeholder="admin@mehedytelecom.com" 
-                      className={`pl-10 h-12 ${backgroundUrl ? 'bg-transparent border-white/30 text-white placeholder:text-slate-300 focus-visible:ring-white/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-600'}`}
+                      className="pl-10 h-12 bg-transparent border-white/30 text-white placeholder:text-slate-300 focus-visible:ring-white/50"
                       required 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -139,14 +139,14 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password" className={backgroundUrl ? 'text-slate-200' : 'text-slate-700'}>Password</Label>
+                  <Label htmlFor="password" className="text-slate-200">Password</Label>
                   <div className="relative group">
-                    <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors ${backgroundUrl ? 'text-slate-300 group-focus-within:text-white' : 'text-slate-400 group-focus-within:text-indigo-600'}`} />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors text-slate-300 group-focus-within:text-white" />
                     <Input 
                       id="password" 
                       type="password" 
                       placeholder="••••••••"
-                      className={`pl-10 h-12 ${backgroundUrl ? 'bg-transparent border-white/30 text-white placeholder:text-slate-300 focus-visible:ring-white/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-600'}`}
+                      className="pl-10 h-12 bg-transparent border-white/30 text-white placeholder:text-slate-300 focus-visible:ring-white/50"
                       required 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -154,10 +154,10 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className={`flex flex-col gap-4 pt-2 ${backgroundUrl ? 'bg-transparent border-none' : ''}`}>
+              <CardFooter className="flex flex-col gap-4 pt-2 bg-transparent border-none">
                 <Button 
                   type="submit" 
-                  className={`w-full h-12 text-base font-semibold transition-all ${backgroundUrl ? 'bg-transparent hover:bg-white/10 text-white border border-white/30' : 'shadow-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20'}`} 
+                  className="w-full h-12 text-base font-semibold transition-all bg-transparent hover:bg-white/10 text-white border border-white/30" 
                   disabled={loading}
                 >
                   {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : (
@@ -166,12 +166,12 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggle, backgroundUrl 
                     </>
                   )}
                 </Button>
-                <p className={`text-sm text-center mt-4 ${backgroundUrl ? 'text-slate-300' : 'text-slate-500'}`}>
+                <p className="text-sm text-center mt-4 text-slate-300">
                   Already have an account?{' '}
                   <button 
                     type="button" 
                     onClick={onToggle}
-                    className={`font-semibold hover:underline transition-colors ${backgroundUrl ? 'text-white hover:text-slate-200' : 'text-indigo-600 hover:text-indigo-700'}`}
+                    className="font-semibold hover:underline transition-colors text-white hover:text-slate-200"
                   >
                     Sign In
                   </button>

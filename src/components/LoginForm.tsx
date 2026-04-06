@@ -11,9 +11,10 @@ import { motion } from 'framer-motion';
 
 interface LoginFormProps {
   onToggle: () => void;
+  backgroundUrl?: string | null;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({ onToggle, backgroundUrl }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,9 +35,29 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-400/20 blur-[120px]" />
+      {/* Dynamic Background Image */}
+      {backgroundUrl && (
+        <motion.div 
+          initial={{ scale: 1.1, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute inset-0 z-0"
+        >
+          <div 
+            className="absolute inset-0 bg-cover bg-center scale-105"
+            style={{ backgroundImage: `url(${backgroundUrl})` }}
+          />
+          <div className="absolute inset-0 bg-black/50" />
+        </motion.div>
+      )}
+
+      {/* Fallback Background decoration */}
+      {!backgroundUrl && (
+        <>
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-400/20 blur-[120px]" />
+        </>
+      )}
       
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -49,7 +70,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="p-4 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-xl shadow-blue-900/10 mb-6"
+            className={`p-4 rounded-2xl mb-6 ${backgroundUrl ? 'bg-transparent border border-white/30' : 'bg-gradient-to-br from-blue-600 to-indigo-600 shadow-xl shadow-blue-900/10'}`}
           >
             <Smartphone className="h-10 w-10 text-white" strokeWidth={1.5} />
           </motion.div>
@@ -57,7 +78,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2"
+            className={`text-4xl font-extrabold tracking-tight mb-2 ${backgroundUrl ? 'text-white drop-shadow-md' : 'text-slate-900'}`}
           >
             Mehedy Telecom
           </motion.h1>
@@ -65,7 +86,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="text-slate-500 font-medium"
+            className={`font-medium ${backgroundUrl ? 'text-slate-200 drop-shadow' : 'text-slate-500'}`}
           >
             Admin Dashboard Login
           </motion.p>
@@ -76,24 +97,24 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="border-slate-100 bg-white/80 backdrop-blur-xl shadow-2xl shadow-slate-200/50">
+          <Card className={`${backgroundUrl ? 'bg-transparent border-white/30 shadow-none' : 'backdrop-blur-xl shadow-2xl border-slate-100 bg-white/80 shadow-slate-200/50'}`}>
             <CardHeader className="space-y-1 pb-6">
-              <CardTitle className="text-2xl font-bold text-slate-900 text-center">Welcome back</CardTitle>
-              <CardDescription className="text-slate-500 text-center">
+              <CardTitle className={`text-2xl font-bold text-center ${backgroundUrl ? 'text-white' : 'text-slate-900'}`}>Welcome back</CardTitle>
+              <CardDescription className={`text-center ${backgroundUrl ? 'text-slate-300' : 'text-slate-500'}`}>
                 Enter your email to sign in to your account
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700">Email</Label>
+                  <Label htmlFor="email" className={backgroundUrl ? 'text-slate-200' : 'text-slate-700'}>Email</Label>
                   <div className="relative group">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                    <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors ${backgroundUrl ? 'text-slate-300 group-focus-within:text-white' : 'text-slate-400 group-focus-within:text-blue-600'}`} />
                     <Input 
                       id="email" 
                       type="email" 
                       placeholder="admin@mehedytelecom.com" 
-                      className="pl-10 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 h-12"
+                      className={`pl-10 h-12 ${backgroundUrl ? 'bg-transparent border-white/30 text-white placeholder:text-slate-300 focus-visible:ring-white/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600'}`}
                       required 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -102,15 +123,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-slate-700">Password</Label>
+                    <Label htmlFor="password" className={backgroundUrl ? 'text-slate-200' : 'text-slate-700'}>Password</Label>
                   </div>
                   <div className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                    <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors ${backgroundUrl ? 'text-slate-300 group-focus-within:text-white' : 'text-slate-400 group-focus-within:text-blue-600'}`} />
                     <Input 
                       id="password" 
                       type="password" 
                       placeholder="••••••••"
-                      className="pl-10 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 h-12"
+                      className={`pl-10 h-12 ${backgroundUrl ? 'bg-transparent border-white/30 text-white placeholder:text-slate-300 focus-visible:ring-white/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600'}`}
                       required 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -118,10 +139,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex flex-col gap-4 pt-2">
+              <CardFooter className={`flex flex-col gap-4 pt-2 ${backgroundUrl ? 'bg-transparent border-none' : ''}`}>
                 <Button 
                   type="submit" 
-                  className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-lg shadow-blue-600/20" 
+                  className={`w-full h-12 text-base font-semibold transition-all ${backgroundUrl ? 'bg-transparent hover:bg-white/10 text-white border border-white/30' : 'shadow-lg bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20'}`} 
                   disabled={loading}
                 >
                   {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : (
@@ -130,12 +151,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
                     </>
                   )}
                 </Button>
-                <p className="text-sm text-center text-slate-500 mt-4">
+                <p className={`text-sm text-center mt-4 ${backgroundUrl ? 'text-slate-300' : 'text-slate-500'}`}>
                   Don't have an account?{' '}
                   <button 
                     type="button" 
                     onClick={onToggle}
-                    className="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors"
+                    className={`font-semibold hover:underline transition-colors ${backgroundUrl ? 'text-white hover:text-slate-200' : 'text-blue-600 hover:text-blue-700'}`}
                   >
                     Sign Up
                   </button>

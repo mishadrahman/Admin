@@ -47,6 +47,20 @@ export function uploadToTelegram(file: File, onProgress?: (percent: number) => v
 }
 
 export async function getTelegramImageUrl(fileId: string): Promise<string> {
+  const CACHE_KEY = `tg_img_${fileId}`;
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    try {
+      const { url, timestamp } = JSON.parse(cached);
+      // Cache for 50 minutes (3000000 ms) because Telegram URLs expire after 1 hour
+      if (Date.now() - timestamp < 3000000) {
+        return url;
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+  }
+
   return new Promise((resolve, reject) => {
     console.log(`[Telegram] Fetching file path for fileId: ${fileId} using XMLHttpRequest`);
     const xhr = new XMLHttpRequest();
@@ -75,6 +89,10 @@ export async function getTelegramImageUrl(fileId: string): Promise<string> {
         // Add a cache-busting timestamp to the final image URL
         const finalUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${filePath}?t=${Date.now()}`;
         console.log(`[Telegram] Successfully generated URL for ${fileId}`);
+        
+        // Save to cache
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ url: finalUrl, timestamp: Date.now() }));
+        
         resolve(finalUrl);
       } catch (e) {
         console.error('[Telegram] Failed to parse Telegram response:', e);

@@ -88,8 +88,17 @@ const AppContent: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [products, setProducts] = useState<Product[]>([]);
-  const [profileUrl, setProfileUrl] = useState<string | null>(null);
-  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
+  
+  // Initialize from cache for instant loading
+  const [profileUrl, setProfileUrl] = useState<string | null>(() => {
+    return localStorage.getItem('last_profile_url') || null;
+  });
+  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(() => {
+    return localStorage.getItem('last_background_url') || null;
+  });
+  const [loginBackgroundUrl, setLoginBackgroundUrl] = useState<string | null>(() => {
+    return localStorage.getItem('last_login_background_url') || null;
+  });
 
   useEffect(() => {
     if (isDarkMode) {
@@ -100,6 +109,52 @@ const AppContent: React.FC = () => {
   }, [isDarkMode]);
 
   useEffect(() => {
+    const unsubscribeProfile = onSnapshot(doc(db, 'settings', 'shopProfile'), async (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.profileImageFileId) {
+          getTelegramImageUrl(data.profileImageFileId).then(url => {
+            setProfileUrl(url);
+            localStorage.setItem('last_profile_url', url);
+          }).catch(console.error);
+        } else {
+          setProfileUrl(null);
+          localStorage.removeItem('last_profile_url');
+        }
+        if (data.backgroundImageFileId) {
+          getTelegramImageUrl(data.backgroundImageFileId).then(url => {
+            setBackgroundUrl(url);
+            localStorage.setItem('last_background_url', url);
+          }).catch(console.error);
+        } else {
+          setBackgroundUrl(null);
+          localStorage.removeItem('last_background_url');
+        }
+        if (data.loginBackgroundImageFileId) {
+          getTelegramImageUrl(data.loginBackgroundImageFileId).then(url => {
+            setLoginBackgroundUrl(url);
+            localStorage.setItem('last_login_background_url', url);
+          }).catch(console.error);
+        } else {
+          setLoginBackgroundUrl(null);
+          localStorage.removeItem('last_login_background_url');
+        }
+      } else {
+        setProfileUrl(null);
+        setBackgroundUrl(null);
+        setLoginBackgroundUrl(null);
+        localStorage.removeItem('last_profile_url');
+        localStorage.removeItem('last_background_url');
+        localStorage.removeItem('last_login_background_url');
+      }
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, 'settings/shopProfile');
+    });
+
+    return () => unsubscribeProfile();
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
     const unsubscribeProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
@@ -108,38 +163,14 @@ const AppContent: React.FC = () => {
       handleFirestoreError(error, OperationType.GET, 'products');
     });
 
-    const unsubscribeProfile = onSnapshot(doc(db, 'settings', 'shopProfile'), async (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.profileImageFileId) {
-          getTelegramImageUrl(data.profileImageFileId).then(setProfileUrl).catch(console.error);
-        } else {
-          setProfileUrl(null);
-        }
-        if (data.backgroundImageFileId) {
-          getTelegramImageUrl(data.backgroundImageFileId).then(setBackgroundUrl).catch(console.error);
-        } else {
-          setBackgroundUrl(null);
-        }
-      } else {
-        setProfileUrl(null);
-        setBackgroundUrl(null);
-      }
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'settings/shopProfile');
-    });
-
-    return () => {
-      unsubscribeProducts();
-      unsubscribeProfile();
-    };
+    return () => unsubscribeProducts();
   }, [user]);
 
   if (!user) {
     return authMode === 'login' ? (
-      <LoginForm onToggle={() => setAuthMode('signup')} />
+      <LoginForm onToggle={() => setAuthMode('signup')} backgroundUrl={loginBackgroundUrl} />
     ) : (
-      <SignupForm onToggle={() => setAuthMode('login')} />
+      <SignupForm onToggle={() => setAuthMode('login')} backgroundUrl={loginBackgroundUrl} />
     );
   }
 

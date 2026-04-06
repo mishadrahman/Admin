@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 interface ShopProfile {
   profileImageFileId?: string;
   backgroundImageFileId?: string;
+  loginBackgroundImageFileId?: string;
 }
 
 export const ProfileSettingsDialog: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -17,8 +18,10 @@ export const ProfileSettingsDialog: React.FC<{ children: React.ReactNode }> = ({
   const [profile, setProfile] = useState<ShopProfile>({});
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
+  const [isUploadingLoginBackground, setIsUploadingLoginBackground] = useState(false);
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
   const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
+  const [loginBackgroundUrl, setLoginBackgroundUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'settings', 'shopProfile'), (docSnap) => {
@@ -42,40 +45,45 @@ export const ProfileSettingsDialog: React.FC<{ children: React.ReactNode }> = ({
     } else {
       setBackgroundUrl(null);
     }
+    if (profile.loginBackgroundImageFileId) {
+      getTelegramImageUrl(profile.loginBackgroundImageFileId).then(setLoginBackgroundUrl).catch(console.error);
+    } else {
+      setLoginBackgroundUrl(null);
+    }
   }, [profile]);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'profile' | 'background') => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'profile' | 'background' | 'loginBackground') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const isProfile = type === 'profile';
-    isProfile ? setIsUploadingProfile(true) : setIsUploadingBackground(true);
+    if (type === 'profile') setIsUploadingProfile(true);
+    else if (type === 'background') setIsUploadingBackground(true);
+    else setIsUploadingLoginBackground(true);
 
     try {
       const fileId = await uploadToTelegram(file);
-      const newProfile = { ...profile, [isProfile ? 'profileImageFileId' : 'backgroundImageFileId']: fileId };
+      const fieldName = type === 'profile' ? 'profileImageFileId' : type === 'background' ? 'backgroundImageFileId' : 'loginBackgroundImageFileId';
+      const newProfile = { ...profile, [fieldName]: fileId };
       await setDoc(doc(db, 'settings', 'shopProfile'), newProfile, { merge: true });
-      toast.success(`${isProfile ? 'Profile' : 'Background'} image updated successfully`);
+      toast.success(`${type === 'profile' ? 'Profile' : type === 'background' ? 'Header Background' : 'Login Background'} image updated successfully`);
     } catch (error) {
       console.error('Failed to upload image:', error);
       toast.error('Failed to upload image');
     } finally {
-      isProfile ? setIsUploadingProfile(false) : setIsUploadingBackground(false);
+      if (type === 'profile') setIsUploadingProfile(false);
+      else if (type === 'background') setIsUploadingBackground(false);
+      else setIsUploadingLoginBackground(false);
       if (e.target) e.target.value = '';
     }
   };
 
-  const handleRemove = async (type: 'profile' | 'background') => {
-    const isProfile = type === 'profile';
+  const handleRemove = async (type: 'profile' | 'background' | 'loginBackground') => {
     try {
       const newProfile = { ...profile };
-      if (isProfile) {
-        delete newProfile.profileImageFileId;
-      } else {
-        delete newProfile.backgroundImageFileId;
-      }
+      const fieldName = type === 'profile' ? 'profileImageFileId' : type === 'background' ? 'backgroundImageFileId' : 'loginBackgroundImageFileId';
+      delete newProfile[fieldName];
       await setDoc(doc(db, 'settings', 'shopProfile'), newProfile);
-      toast.success(`${isProfile ? 'Profile' : 'Background'} image removed`);
+      toast.success(`${type === 'profile' ? 'Profile' : type === 'background' ? 'Header Background' : 'Login Background'} image removed`);
     } catch (error) {
       console.error('Failed to remove image:', error);
       toast.error('Failed to remove image');
@@ -155,6 +163,42 @@ export const ProfileSettingsDialog: React.FC<{ children: React.ReactNode }> = ({
                 </div>
                 {profile.backgroundImageFileId && (
                   <Button variant="destructive" size="icon" onClick={() => handleRemove('background')}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Login Background Image Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Login/Signup Background Image</h3>
+            <div className="space-y-4">
+              <div className="h-24 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden border relative">
+                {loginBackgroundUrl ? (
+                  <img src={loginBackgroundUrl} alt="Login Background" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-400">
+                    <ImageIcon className="w-6 h-6" />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleUpload(e, 'loginBackground')}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                    disabled={isUploadingLoginBackground}
+                  />
+                  <Button variant="outline" className="w-full" disabled={isUploadingLoginBackground}>
+                    {isUploadingLoginBackground ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+                    Upload
+                  </Button>
+                </div>
+                {profile.loginBackgroundImageFileId && (
+                  <Button variant="destructive" size="icon" onClick={() => handleRemove('loginBackground')}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 )}

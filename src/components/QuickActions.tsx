@@ -7,7 +7,9 @@ import {
   BarChart3, 
   Download,
   Search,
-  Loader2
+  Loader2,
+  Calendar,
+  PieChart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
@@ -48,12 +50,18 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ products }) => {
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [isSaleListModalOpen, setIsSaleListModalOpen] = useState(false);
   const [isMonthlyReportModalOpen, setIsMonthlyReportModalOpen] = useState(false);
+  const [isDateReportModalOpen, setIsDateReportModalOpen] = useState(false);
+  const [isProductReportModalOpen, setIsProductReportModalOpen] = useState(false);
   
   const [quickSaleSearch, setQuickSaleSearch] = useState('');
   const [sellingProduct, setSellingProduct] = useState<Product | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
+  const [selectedDateReport, setSelectedDateReport] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [saleListDateFilter, setSaleListDateFilter] = useState('');
+  const [productReportStartDate, setProductReportStartDate] = useState(format(new Date(), 'yyyy-MM-01'));
+  const [productReportEndDate, setProductReportEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   
   const [productForm, setProductForm] = useState({
     name: '',
@@ -172,7 +180,9 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ products }) => {
     { label: 'Add Product', icon: Plus, color: 'bg-[#5c6bc0]', onClick: () => setIsProductModalOpen(true) },
     { label: 'Sale Product', icon: ShoppingCart, color: 'bg-[#43a047]', onClick: () => setIsQuickSaleModalOpen(true) },
     { label: 'Sale List', icon: List, color: 'bg-[#7e57c2]', onClick: openSaleList },
+    { label: 'Date Report', icon: Calendar, color: 'bg-[#f57c00]', onClick: () => setIsDateReportModalOpen(true) },
     { label: 'Monthly Report', icon: BarChart3, color: 'bg-[#424242]', onClick: () => setIsMonthlyReportModalOpen(true) },
+    { label: 'Product Report', icon: PieChart, color: 'bg-[#00897b]', onClick: () => setIsProductReportModalOpen(true) },
   ];
 
   const availableMonths = useMemo(() => {
@@ -192,6 +202,50 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ products }) => {
       totalTransactions: salesThisMonth.length,
     };
   }, [recentSales, selectedMonth]);
+
+  const dateStats = useMemo(() => {
+    const salesOnDate = recentSales.filter(s => s.date === selectedDateReport);
+    return {
+      totalPieces: salesOnDate.reduce((sum, s) => sum + s.quantity, 0),
+      totalValue: salesOnDate.reduce((sum, s) => sum + (s.sellingPrice * s.quantity), 0),
+      totalProfit: salesOnDate.reduce((sum, s) => sum + s.profit, 0),
+      totalTransactions: salesOnDate.length,
+    };
+  }, [recentSales, selectedDateReport]);
+
+  const filteredRecentSales = useMemo(() => {
+    if (!saleListDateFilter) return recentSales;
+    return recentSales.filter(s => s.date === saleListDateFilter);
+  }, [recentSales, saleListDateFilter]);
+
+  const productWiseStats = useMemo(() => {
+    if (!productReportStartDate || !productReportEndDate) return [];
+
+    const filtered = recentSales.filter(s => 
+      s.date >= productReportStartDate && s.date <= productReportEndDate
+    );
+
+    const grouped = filtered.reduce((acc, sale) => {
+      if (!acc[sale.productName]) {
+        acc[sale.productName] = { productName: sale.productName, quantity: 0, totalSale: 0, totalProfit: 0 };
+      }
+      acc[sale.productName].quantity += sale.quantity;
+      acc[sale.productName].totalSale += (sale.sellingPrice * sale.quantity);
+      acc[sale.productName].totalProfit += sale.profit;
+      return acc;
+    }, {} as Record<string, { productName: string, quantity: number, totalSale: number, totalProfit: number }>);
+
+    return Object.values(grouped).sort((a, b) => b.totalProfit - a.totalProfit);
+  }, [recentSales, productReportStartDate, productReportEndDate]);
+
+  const productReportTotals = useMemo(() => {
+    return productWiseStats.reduce((acc, curr) => {
+      acc.quantity += curr.quantity;
+      acc.totalSale += curr.totalSale;
+      acc.totalProfit += curr.totalProfit;
+      return acc;
+    }, { quantity: 0, totalSale: 0, totalProfit: 0 });
+  }, [productWiseStats]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -400,10 +454,25 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ products }) => {
       <Dialog open={isSaleListModalOpen} onOpenChange={setIsSaleListModalOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle>Recent Sales</DialogTitle>
+            <div className="flex items-center justify-between pr-6">
+              <DialogTitle>Recent Sales</DialogTitle>
+              <div className="flex items-center gap-2">
+                <Input 
+                  type="date" 
+                  value={saleListDateFilter} 
+                  onChange={(e) => setSaleListDateFilter(e.target.value)}
+                  className="h-8 text-xs w-[130px]"
+                />
+                {saleListDateFilter && (
+                  <Button variant="ghost" size="sm" onClick={() => setSaleListDateFilter('')} className="h-8 px-2 text-xs">
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto py-4 space-y-3">
-            {recentSales.map(sale => (
+            {filteredRecentSales.map(sale => (
               <div key={sale.id} className="p-3 rounded-lg border bg-slate-50/50 flex justify-between items-center">
                 <div>
                   <p className="font-bold text-sm">{sale.productName}</p>
@@ -415,10 +484,48 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ products }) => {
                 </div>
               </div>
             ))}
-            {recentSales.length === 0 && <p className="text-center py-8 text-muted-foreground">No sales recorded yet.</p>}
+            {filteredRecentSales.length === 0 && <p className="text-center py-8 text-muted-foreground">No sales recorded yet.</p>}
           </div>
         </DialogContent>
       </Dialog>
+      {/* Date Report Modal */}
+      <Dialog open={isDateReportModalOpen} onOpenChange={setIsDateReportModalOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-2xl border-none shadow-2xl bg-white/95 backdrop-blur-md">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-2xl font-bold text-slate-800">Date Report</DialogTitle>
+              <Input 
+                type="date" 
+                value={selectedDateReport} 
+                onChange={(e) => setSelectedDateReport(e.target.value)}
+                className="w-[140px] h-9 rounded-xl border-slate-200"
+              />
+            </div>
+            <DialogDescription className="text-slate-500">
+              Performance summary for {selectedDateReport ? format(new Date(selectedDateReport), 'dd MMM yyyy') : 'Selected Date'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex flex-col items-center text-center">
+              <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Total Pieces</p>
+              <p className="text-2xl font-black text-blue-900">{dateStats.totalPieces}</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 flex flex-col items-center text-center">
+              <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">Transactions</p>
+              <p className="text-2xl font-black text-indigo-900">{dateStats.totalTransactions}</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-orange-50 border border-orange-100 flex flex-col items-center text-center">
+              <p className="text-xs font-bold text-orange-600 uppercase tracking-wider mb-1">Total Sale</p>
+              <p className="text-2xl font-black text-orange-900">৳{dateStats.totalValue.toLocaleString()}</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-green-50 border border-green-100 flex flex-col items-center text-center">
+              <p className="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Total Profit</p>
+              <p className="text-2xl font-black text-green-900">৳{dateStats.totalProfit.toLocaleString()}</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Monthly Report Modal */}
       <Dialog open={isMonthlyReportModalOpen} onOpenChange={setIsMonthlyReportModalOpen}>
         <DialogContent className="sm:max-w-[425px] rounded-2xl border-none shadow-2xl bg-white/95 backdrop-blur-md">
@@ -465,6 +572,55 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ products }) => {
               Close Report
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Product Report Modal */}
+      <Dialog open={isProductReportModalOpen} onOpenChange={setIsProductReportModalOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden flex flex-col rounded-2xl border-none shadow-2xl bg-white/95 backdrop-blur-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-slate-800">Product-wise Report</DialogTitle>
+            <div className="flex items-center gap-4 mt-4">
+              <div className="flex-1">
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Start Date</label>
+                <Input type="date" value={productReportStartDate} onChange={e => setProductReportStartDate(e.target.value)} className="rounded-xl border-slate-200" />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">End Date</label>
+                <Input type="date" value={productReportEndDate} onChange={e => setProductReportEndDate(e.target.value)} className="rounded-xl border-slate-200" />
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto py-4 space-y-3">
+            {productWiseStats.map(stat => (
+              <div key={stat.productName} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex justify-between items-center shadow-sm">
+                <div>
+                  <p className="font-bold text-slate-800">{stat.productName}</p>
+                  <p className="text-xs font-medium text-slate-500 mt-1">Sold: {stat.quantity} pcs</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-slate-700">Sale: ৳{stat.totalSale.toLocaleString()}</p>
+                  <p className="text-sm font-bold text-green-600 mt-1">Profit: ৳{stat.totalProfit.toLocaleString()}</p>
+                </div>
+              </div>
+            ))}
+            {productWiseStats.length === 0 && (
+              <div className="text-center py-12">
+                <PieChart className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 font-medium">No sales found in this date range.</p>
+              </div>
+            )}
+          </div>
+          <div className="pt-4 border-t border-slate-100 flex justify-between items-center bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-2xl">
+             <div>
+               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Items Sold</p>
+               <p className="text-xl font-black text-slate-800">{productReportTotals.quantity}</p>
+             </div>
+             <div className="text-right">
+               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Profit</p>
+               <p className="text-2xl font-black text-green-600">৳{productReportTotals.totalProfit.toLocaleString()}</p>
+             </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

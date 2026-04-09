@@ -22,17 +22,17 @@ export default defineConfig(({mode}) => {
           display: 'standalone',
           icons: [
             {
-              src: 'https://storage.googleapis.com/aistudio-user-uploads-prod/1744285530_1000003058.png',
+              src: '/icon.png',
               sizes: '192x192',
               type: 'image/png'
             },
             {
-              src: 'https://storage.googleapis.com/aistudio-user-uploads-prod/1744285530_1000003058.png',
+              src: '/icon.png',
               sizes: '512x512',
               type: 'image/png'
             },
             {
-              src: 'https://storage.googleapis.com/aistudio-user-uploads-prod/1744285530_1000003058.png',
+              src: '/icon.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any maskable'

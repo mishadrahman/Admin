@@ -133,35 +133,37 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-10">
       {/* Redesigned Stat Cards Grid */}
-      <div className="grid grid-cols-2 gap-6">
-        {statCards.map((stat, index) => (
-          <motion.div
-            key={stat.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <div className="flex flex-col items-center text-center space-y-2">
-              <motion.div 
-                className={`w-16 h-16 rounded-2xl ${stat.bg} flex items-center justify-center shadow-sm`}
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
-              </motion.div>
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium text-slate-500">{stat.title}</p>
-                <div className="text-2xl font-black tracking-tight">
-                  <AnimatedNumber 
-                    value={stat.value} 
-                    prefix={stat.id.includes('profit') || stat.id.includes('value') || stat.id.includes('amount') ? '৳' : ''} 
-                  />
+      <Card className="p-6 border border-slate-200 shadow-sm rounded-3xl bg-white/60 backdrop-blur-sm">
+        <div className="grid grid-cols-2 gap-8">
+          {statCards.map((stat, index) => (
+            <motion.div
+              key={stat.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <div className="flex flex-col items-center text-center space-y-2">
+                <motion.div 
+                  className={`w-16 h-16 rounded-2xl ${stat.bg} flex items-center justify-center shadow-sm`}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                </motion.div>
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium text-slate-500">{stat.title}</p>
+                  <div className="text-2xl font-black tracking-tight">
+                    <AnimatedNumber 
+                      value={stat.value} 
+                      prefix={stat.id.includes('profit') || stat.id.includes('value') || stat.id.includes('amount') ? '৳' : ''} 
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+            </motion.div>
+          ))}
+        </div>
+      </Card>
 
       {/* Chart Section (Optional, kept for value) */}
       <motion.div
